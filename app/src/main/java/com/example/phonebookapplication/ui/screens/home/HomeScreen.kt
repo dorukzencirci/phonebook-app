@@ -65,7 +65,7 @@ fun HomeScreen(viewModel: HomeViewModel) {
 
                 }
                 is UiState.Success -> {
-
+                    snackbarHostState.showSnackbar(uiState.message ?: "Success")
                 }
             }
         }

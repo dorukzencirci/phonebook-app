@@ -39,6 +39,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
@@ -55,6 +56,7 @@ import com.example.phonebookapplication.ui.theme.Gray50
 import com.example.phonebookapplication.ui.theme.Gray500
 import com.example.phonebookapplication.ui.theme.Gray950
 import com.example.phonebookapplication.ui.theme.TextBlue
+import com.example.phonebookapplication.util.Constants
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -272,7 +274,7 @@ fun ContactInfoBottomSheet(
                         modifier = Modifier
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text(text = "Save to My Phone Contact", color = if(isContactSaved) Gray100 else Gray950)
+                    Text(text = stringResource(R.string.save_to_my_phone_text), color = if(isContactSaved) Gray100 else Gray950)
                 }
             }
             if(isContactSaved) {

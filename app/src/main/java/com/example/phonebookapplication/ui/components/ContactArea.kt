@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -62,19 +63,19 @@ fun ContactArea(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "No Contacts",
+                    text = stringResource(R.string.no_contacts),
                     style = MaterialTheme.typography.bodyLarge,
                     color = Gray950,
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "Contacts you've added will appear here.",
+                    text = stringResource(R.string.add_contact_msg),
                     color = Gray900
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = "Create New Contact",
+                    text = stringResource(R.string.create_new_contact),
                     color = TextBlue,
                     modifier = Modifier.clickable { onCreateClick() }
                 )
@@ -94,13 +95,13 @@ fun ContactArea(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "No Results",
+                    text = stringResource(R.string.no_contacts),
                     style = MaterialTheme.typography.bodyLarge,
                     color = Gray950
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "The user you are looking for could not be found.",
+                    text = stringResource(R.string.user_not_found_msg),
                     color = Gray900
                 )
             }
@@ -122,7 +123,7 @@ fun ContactArea(
                     ) {
                         Column {
                             Text(
-                                text = if(searchQuery.isEmpty()) letter.toString() else "TOP NAME MATCHES",
+                                text = if(searchQuery.isEmpty()) letter.toString() else stringResource(R.string.name_match_header_text),
                                 fontWeight = FontWeight.SemiBold,
                                 modifier = Modifier.padding(start = 10.dp, top = 7.dp),
                                 color = Gray300,
