@@ -34,7 +34,7 @@ interface ApiService {
     ): BaseResponse<User>
 
     @POST("User/UploadImage")
-    suspend fun uploadUserImage(
+    suspend fun uploadImage(
         @Body request: UploadImageRequest
     ): BaseResponse<UploadImageResponse>
 

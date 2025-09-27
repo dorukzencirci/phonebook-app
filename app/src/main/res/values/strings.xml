@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">PhoneBookApplication</string>
+    <string name="surname">Last Name</string>
+    <string name="first_name">First Name</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="change_photo">Change Photo</string>
+    <string name="add_photo">Add Photo</string>
+    <string name="cancel">Cancel</string>
+    <string name="new_contact">New Contact</string>
+    <string name="done">Done</string>
 </resources>

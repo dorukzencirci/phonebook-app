@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.phonebookapplication.data.model.SaveUserRequest
 import com.example.phonebookapplication.data.model.UpdateUserRequest
+import com.example.phonebookapplication.data.model.UploadImageRequest
 import com.example.phonebookapplication.data.model.User
 import com.example.phonebookapplication.data.repository.UserRepository
 import com.example.phonebookapplication.ui.state.UiState
@@ -76,5 +77,18 @@ class HomeViewModel(val repository: UserRepository): ViewModel() {
             }
         }
 
+    }
+
+    fun uploadImage(request: UploadImageRequest) {
+        viewModelScope.launch {
+            try {
+                val response = repository.uploadImage(request)
+                _uiState.emit(UiState.Success(response.messages?.first() ?: ""))
+            }
+            catch (ex: Exception) {
+                Log.e("HomeViewModel", "updateUser: ", ex)
+                _uiState.emit(UiState.Error(ex.message))
+            }
+        }
     }
 }

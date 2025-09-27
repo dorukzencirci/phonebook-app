@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -71,21 +72,21 @@ fun CreateContactBottomSheet(
                     .fillMaxWidth()
             ) {
                 Text(
-                    text = "Cancel",
+                    text = stringResource(R.string.cancel),
                     color = TextBlue,
                     modifier = Modifier.align(Alignment.CenterStart)
                         .clickable { onDismiss() }
                 )
 
                 Text(
-                    text = "New Contact",
+                    text = stringResource(R.string.new_contact),
                     color = Gray950,
                     modifier = Modifier.align(Alignment.Center),
                     fontWeight = FontWeight.Bold
                 )
 
                 Text(
-                    text = "Done",
+                    text = stringResource(R.string.done),
                     color = if(isDoneButtonEnabled) TextBlue else Gray200,
                     modifier = Modifier.align(Alignment.CenterEnd)
                         .clickable(enabled = (isDoneButtonEnabled)) {
@@ -121,7 +122,7 @@ fun CreateContactBottomSheet(
             Spacer(Modifier.height(8.dp))
 
             Text(
-                text = if(profileImageUrl !=null) "Change Photo" else "Add Photo",
+                text = if(profileImageUrl != null) stringResource(R.string.change_photo) else stringResource(R.string.add_photo),
                 color = TextBlue,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.clickable {showUploadImageSheet = true}
@@ -132,21 +133,21 @@ fun CreateContactBottomSheet(
             OutlinedTextField(
                 value = firstName,
                 onValueChange = {firstName = it},
-                label = { Text("First Name") },
+                label = { Text(stringResource(R.string.first_name)) },
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(Modifier.height(12.dp))
             OutlinedTextField(
                 value = lastName,
                 onValueChange = {lastName = it},
-                label = { Text("Last Name") },
+                label = { Text(stringResource(R.string.surname)) },
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(Modifier.height(12.dp))
             OutlinedTextField(
                 value = phoneNumber,
                 onValueChange = {phoneNumber = it},
-                label = { Text("Phone Number") },
+                label = { Text(stringResource(R.string.phone_number)) },
                 modifier = Modifier.fillMaxWidth()
             )
 

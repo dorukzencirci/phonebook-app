@@ -44,6 +44,7 @@ import com.example.phonebookapplication.util.Constants
 @Composable
 fun HomeScreen(viewModel: HomeViewModel) {
     val snackbarHostState = remember { SnackbarHostState() }
+    var searchQuery by remember { mutableStateOf("") }
     val users by viewModel.users.collectAsState(emptyList())
     var showAddContactSheet by remember { mutableStateOf(false) }
     var showContactInfoSheet by remember { mutableStateOf(false) }
@@ -111,11 +112,14 @@ fun HomeScreen(viewModel: HomeViewModel) {
                 Spacer(modifier = Modifier.height(39.dp))
                 HomePageHeader({ showAddContactSheet = true })
                 Spacer(modifier = Modifier.height(26.dp))
-                AppSearchBar()
+                AppSearchBar(
+                    query = searchQuery,
+                    onQueryChange = { searchQuery = it }
+                )
                 Spacer(modifier = Modifier.height(16.dp))
                 ContactArea(
                     users = Constants.sampleUserList,
-                    searchQuery = "",
+                    searchQuery = searchQuery,
                     onCreateClick = { showAddContactSheet = true },
                     onUserClick = {user ->
                         selectedUser = user
@@ -156,6 +160,9 @@ fun HomeScreen(viewModel: HomeViewModel) {
             onDelete = {
                 viewModel.deleteUser(selectedUser!!.id ?: "")
                 showContactInfoSheet = false
+            },
+            onUploadImage = { uploadImageRequest ->
+                viewModel.uploadImage(uploadImageRequest)
             }
         )
     }

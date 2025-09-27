@@ -26,6 +26,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.phonebookapplication.R
 import com.example.phonebookapplication.data.model.User
 import com.example.phonebookapplication.ui.theme.Gray300
@@ -44,7 +45,7 @@ fun ContactArea(
 ) {
 
     val filteredUsers = users.filter {
-        it.firstName?.contains(searchQuery, ignoreCase = true) == true || it.lastName?.contains(searchQuery, ignoreCase = true) == true
+        it.firstName?.startsWith(searchQuery, ignoreCase = true) == true
     }
 
     if (users.isEmpty()) {
@@ -105,7 +106,7 @@ fun ContactArea(
             }
         }
     } else {
-        val groupedUsers = users.sortedBy { it.firstName }.groupBy { it.firstName?.firstOrNull()?.uppercaseChar() ?: '#' }
+        val groupedUsers = filteredUsers.sortedBy { it.firstName }.groupBy { it.firstName?.firstOrNull()?.uppercaseChar() ?: '#' }
         LazyColumn(
             modifier = modifier.fillMaxSize(),
             contentPadding = PaddingValues(horizontal = 16.dp),
@@ -121,10 +122,11 @@ fun ContactArea(
                     ) {
                         Column {
                             Text(
-                                text = letter.toString(),
-                                fontWeight = FontWeight.Bold,
+                                text = if(searchQuery.isEmpty()) letter.toString() else "TOP NAME MATCHES",
+                                fontWeight = FontWeight.SemiBold,
                                 modifier = Modifier.padding(start = 10.dp, top = 7.dp),
-                                color = Gray300
+                                color = Gray300,
+                                fontSize = 14.sp
                             )
 
                             usersForLetter.forEachIndexed { index, user ->
