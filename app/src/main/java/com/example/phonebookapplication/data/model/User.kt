@@ -6,5 +6,6 @@ data class User(
     val firstName: String?,
     val lastName: String?,
     val phoneNumber: String?,
-    val profileImageUrl: String?
+    val profileImageUrl: String?,
+    var savedToPhone: Boolean = false
 )

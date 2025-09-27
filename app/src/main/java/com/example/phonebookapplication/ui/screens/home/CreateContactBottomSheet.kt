@@ -16,15 +16,21 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.example.phonebookapplication.R
-import com.example.phonebookapplication.data.model.User
-import com.example.phonebookapplication.ui.components.CustomInputField
-import com.example.phonebookapplication.ui.theme.AppBackgroundColor
+import com.example.phonebookapplication.data.model.SaveUserRequest
 import com.example.phonebookapplication.ui.theme.Gray200
 import com.example.phonebookapplication.ui.theme.Gray950
 import com.example.phonebookapplication.ui.theme.TextBlue
@@ -33,16 +39,24 @@ import com.example.phonebookapplication.ui.theme.TextBlue
 @Composable
 fun CreateContactBottomSheet(
     onDismiss: () -> Unit,
-    onSave: (User) -> Unit
+    onSave: (SaveUserRequest) -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
     )
 
+    var firstName by remember { mutableStateOf("") }
+    var lastName by remember { mutableStateOf("") }
+    var phoneNumber by remember { mutableStateOf("") }
+    var profileImageUrl by remember { mutableStateOf<String?>(null) }
+    var showUploadImageSheet by remember { mutableStateOf(false) }
+
+    val isDoneButtonEnabled = firstName.isNotBlank() && lastName.isNotBlank() && phoneNumber.isNotBlank()
+
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = AppBackgroundColor,
+        containerColor = Color.White,
         modifier = Modifier.fillMaxHeight().padding(top = 42.dp),
         dragHandle = null
     ) {
@@ -59,7 +73,8 @@ fun CreateContactBottomSheet(
                 Text(
                     text = "Cancel",
                     color = TextBlue,
-                    modifier = Modifier.align(Alignment.CenterStart).clickable { onDismiss() }
+                    modifier = Modifier.align(Alignment.CenterStart)
+                        .clickable { onDismiss() }
                 )
 
                 Text(
@@ -71,45 +86,81 @@ fun CreateContactBottomSheet(
 
                 Text(
                     text = "Done",
-                    color = Gray200,
+                    color = if(isDoneButtonEnabled) TextBlue else Gray200,
                     modifier = Modifier.align(Alignment.CenterEnd)
+                        .clickable(enabled = (isDoneButtonEnabled)) {
+                            onSave(
+                                SaveUserRequest(
+                                    firstName = firstName,
+                                    lastName = lastName,
+                                    phoneNumber = phoneNumber,
+                                    profileImageUrl = profileImageUrl
+                                )
+                            )
+                        }
                 )
             }
 
             Spacer(Modifier.height(48.dp))
-
-            Image(
-                painter = painterResource(R.drawable.default_user_profile_image),
-                contentDescription = "Default User Profile Image",
-                modifier = Modifier.size(96.dp)
-            )
+            if(profileImageUrl != null) {
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(profileImageUrl)
+                        .build(),
+                    contentDescription = "User Profile Image",
+                    modifier = Modifier.size(96.dp)
+                )
+            }
+            else {
+                Image(
+                    painter = painterResource(R.drawable.default_user_profile_image),
+                    contentDescription = "Default User Profile Image",
+                    modifier = Modifier.size(96.dp)
+                )
+            }
             Spacer(Modifier.height(8.dp))
 
             Text(
-                "Add Photo",
+                text = if(profileImageUrl !=null) "Change Photo" else "Add Photo",
                 color = TextBlue,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.clickable {showUploadImageSheet = true}
             )
 
             Spacer(Modifier.height(32.dp))
 
-            CustomInputField()
+            OutlinedTextField(
+                value = firstName,
+                onValueChange = {firstName = it},
+                label = { Text("First Name") },
+                modifier = Modifier.fillMaxWidth()
+            )
             Spacer(Modifier.height(12.dp))
             OutlinedTextField(
-                value = "",
-                onValueChange = {},
+                value = lastName,
+                onValueChange = {lastName = it},
                 label = { Text("Last Name") },
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(Modifier.height(12.dp))
             OutlinedTextField(
-                value = "",
-                onValueChange = {},
+                value = phoneNumber,
+                onValueChange = {phoneNumber = it},
                 label = { Text("Phone Number") },
                 modifier = Modifier.fillMaxWidth()
             )
 
             Spacer(Modifier.height(16.dp))
         }
+    }
+
+    if(showUploadImageSheet) {
+        PhotoPickerBottomSheet(
+            onDismiss = { showUploadImageSheet = false },
+            onTakePhoto = {},
+            onChooseGallery = { uriString ->
+                profileImageUrl = uriString
+            }
+        )
     }
 }

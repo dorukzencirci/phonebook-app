@@ -1,6 +1,6 @@
 package com.example.phonebookapplication.data.remote
 
-import com.example.phonebookapplication.data.model.AddUserRequest
+import com.example.phonebookapplication.data.model.SaveUserRequest
 import com.example.phonebookapplication.data.model.BaseResponse
 import com.example.phonebookapplication.data.model.UpdateUserRequest
 import com.example.phonebookapplication.data.model.UploadImageRequest
@@ -24,12 +24,12 @@ interface ApiService {
 
     @POST("User")
     suspend fun saveUser(
-        @Body request: AddUserRequest
+        @Body request: SaveUserRequest
     ): BaseResponse<User>
 
     @PUT("User/{id}")
     suspend fun updateUser(
-        @Path("id") userId: Int,
+        @Path("id") userId: String,
         @Body request: UpdateUserRequest
     ): BaseResponse<User>
 
@@ -40,6 +40,6 @@ interface ApiService {
 
     @DELETE("User/{id}")
     suspend fun deleteUser(
-        @Path("id") userId: Int
+        @Path("id") userId: String
     ): BaseResponse<User>
 }
