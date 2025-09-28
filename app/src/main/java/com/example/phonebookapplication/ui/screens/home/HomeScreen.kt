@@ -1,6 +1,9 @@
 package com.example.phonebookapplication.ui.screens.home
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,6 +15,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -26,6 +31,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -36,10 +43,10 @@ import com.example.phonebookapplication.data.model.User
 import com.example.phonebookapplication.ui.components.AppSearchBar
 import com.example.phonebookapplication.ui.components.ContactArea
 import com.example.phonebookapplication.ui.components.HomePageHeader
+import com.example.phonebookapplication.ui.components.SuccessScreen
 import com.example.phonebookapplication.ui.state.UiState
 import com.example.phonebookapplication.ui.theme.AppBackgroundColor
 import com.example.phonebookapplication.ui.theme.SuccessGreen
-import com.example.phonebookapplication.util.Constants
 
 @Composable
 fun HomeScreen(viewModel: HomeViewModel) {
@@ -48,10 +55,17 @@ fun HomeScreen(viewModel: HomeViewModel) {
     val users by viewModel.users.collectAsState(emptyList())
     var showAddContactSheet by remember { mutableStateOf(false) }
     var showContactInfoSheet by remember { mutableStateOf(false) }
+    var showSuccessScreen by remember { mutableStateOf(false) }
     var selectedUser by remember { mutableStateOf<User?>(null) }
+    var uploadedImageUrl by remember { mutableStateOf<String?>(null) }
+    var isSearching by remember { mutableStateOf(false) }
+    var searchHistory by remember { mutableStateOf(mutableListOf<String>()) }
+    val focusManager = LocalFocusManager.current
+    var isLoading by remember { mutableStateOf(false) }
 
 
     LaunchedEffect(Unit) {
+        isLoading = true
         viewModel.fetchAllUsers()
     }
 
@@ -59,13 +73,26 @@ fun HomeScreen(viewModel: HomeViewModel) {
         viewModel.uiState.collect { uiState ->
             when(uiState) {
                 is UiState.Error -> {
-                    snackbarHostState.showSnackbar(uiState.message ?: "Error")
-                }
-                is UiState.Loading -> {
 
                 }
+                is UiState.Loading -> {
+                    isLoading = true
+                }
                 is UiState.Success -> {
-                    snackbarHostState.showSnackbar(uiState.message ?: "Success")
+                    isLoading = false
+                    if(uiState.imageUrl != null) {
+                        selectedUser?.let { selectedUser = it.copy(profileImageUrl = uiState.imageUrl)}
+                        uploadedImageUrl = uiState.imageUrl
+                    }
+
+                    if(!uiState.message.isNullOrEmpty()) {
+                        if(uiState.message == "User is saved!") {
+                            showSuccessScreen = true
+                        }
+                        else {
+                            snackbarHostState.showSnackbar(uiState.message)
+                        }
+                    }
                 }
             }
         }
@@ -106,6 +133,11 @@ fun HomeScreen(viewModel: HomeViewModel) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    .pointerInput(Unit) {
+                        detectTapGestures {
+                            focusManager.clearFocus()
+                        }
+                    }
                     .padding(paddingValues),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -114,16 +146,29 @@ fun HomeScreen(viewModel: HomeViewModel) {
                 Spacer(modifier = Modifier.height(26.dp))
                 AppSearchBar(
                     query = searchQuery,
-                    onQueryChange = { searchQuery = it }
+                    onQueryChange = {
+                        searchQuery = it
+                        isSearching = searchQuery.isEmpty()
+                    },
+                    onFocusChanged = { isSearching = it && searchQuery.isEmpty() },
+                    onSearchClick = {query -> if(!searchHistory.contains(query))searchHistory.add(query)}
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 ContactArea(
-                    users = Constants.sampleUserList,
+                    users = users,
                     searchQuery = searchQuery,
                     onCreateClick = { showAddContactSheet = true },
                     onUserClick = {user ->
                         selectedUser = user
                         showContactInfoSheet = true
+                    },
+                    isSearching = isSearching,
+                    searchHistory = searchHistory,
+                    onDeleteSearchItem = { item ->
+                        searchHistory = searchHistory.toMutableList().also { it.remove(item) }
+                    },
+                    onClearAllSearch = {
+                        searchHistory = mutableListOf()
                     }
                 )
             }
@@ -133,18 +178,26 @@ fun HomeScreen(viewModel: HomeViewModel) {
 
     if (showAddContactSheet) {
         CreateContactBottomSheet(
-            onDismiss = { showAddContactSheet = false },
+            onDismiss = {
+                uploadedImageUrl = null
+                showAddContactSheet = false
+            },
+            onImageSelected = { file ->
+                viewModel.uploadImage(file)
+            },
             onSave = { user ->
                 viewModel.saveUser(
                     SaveUserRequest(
                         firstName = user.firstName,
                         lastName = user.lastName,
                         phoneNumber = user.phoneNumber,
-                        profileImageUrl = user.profileImageUrl
+                        profileImageUrl = uploadedImageUrl
                     )
                 )
+                uploadedImageUrl = null
                 showAddContactSheet = false
-            }
+            },
+            initialProfileImageUrl = uploadedImageUrl
         )
     }
 
@@ -156,14 +209,33 @@ fun HomeScreen(viewModel: HomeViewModel) {
                 viewModel.updateUser(
                     saveUserRequest, selectedUser!!.id ?: ""
                 )
+                uploadedImageUrl = null
             },
             onDelete = {
                 viewModel.deleteUser(selectedUser!!.id ?: "")
                 showContactInfoSheet = false
             },
-            onUploadImage = { uploadImageRequest ->
-                viewModel.uploadImage(uploadImageRequest)
+            onUploadImage = { file ->
+                viewModel.uploadImage(file)
             }
         )
+    }
+
+    if(showSuccessScreen) {
+        SuccessScreen(
+            onDismiss = {
+                showSuccessScreen = false
+            }
+        )
+    }
+    if (isLoading) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color(0x80000000)),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+        }
     }
 }

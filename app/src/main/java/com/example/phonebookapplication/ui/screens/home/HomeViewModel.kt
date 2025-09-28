@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.phonebookapplication.data.model.SaveUserRequest
 import com.example.phonebookapplication.data.model.UpdateUserRequest
-import com.example.phonebookapplication.data.model.UploadImageRequest
 import com.example.phonebookapplication.data.model.User
 import com.example.phonebookapplication.data.repository.UserRepository
 import com.example.phonebookapplication.ui.state.UiState
@@ -14,6 +13,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
+import java.io.File
 
 
 class HomeViewModel(val repository: UserRepository): ViewModel() {
@@ -25,9 +25,10 @@ class HomeViewModel(val repository: UserRepository): ViewModel() {
 
     fun fetchAllUsers() {
         viewModelScope.launch {
+            _uiState.emit(UiState.Loading)
             try {
                 val response = repository.getAllUsers()
-                _users.value = response.data ?: emptyList()
+                _users.value = response.data?.users ?: emptyList()
                 _uiState.emit(UiState.Success(response.messages?.first() ?: ""))
             }
             catch (ex: Exception) {
@@ -42,7 +43,8 @@ class HomeViewModel(val repository: UserRepository): ViewModel() {
         viewModelScope.launch {
             try {
                 val response = repository.saveUser(request)
-                _uiState.emit(UiState.Success(response.messages?.first() ?: ""))
+                _uiState.emit(UiState.Success(response.messages?.first() ?: "User is saved!"))
+                fetchAllUsers()
             }
             catch (ex: Exception) {
                 Log.e("HomeViewModel", "saveUser: ", ex)
@@ -55,7 +57,8 @@ class HomeViewModel(val repository: UserRepository): ViewModel() {
         viewModelScope.launch {
             try {
                 val response = repository.deleteUser(id)
-                _uiState.emit(UiState.Success(response.messages?.first() ?: ""))
+                _uiState.emit(UiState.Success(response.messages?.first() ?: "User is Deleted!"))
+                fetchAllUsers()
             }
             catch (ex: Exception) {
                 Log.e("HomeViewModel", "deleteUser: ", ex)
@@ -69,7 +72,8 @@ class HomeViewModel(val repository: UserRepository): ViewModel() {
         viewModelScope.launch {
             try {
                 val response = repository.updateUser(id, request)
-                _uiState.emit(UiState.Success(response.messages?.first() ?: ""))
+                _uiState.emit(UiState.Success(response.messages?.first() ?: "User is updated!"))
+                fetchAllUsers()
             }
             catch (ex: Exception) {
                 Log.e("HomeViewModel", "updateUser: ", ex)
@@ -79,11 +83,11 @@ class HomeViewModel(val repository: UserRepository): ViewModel() {
 
     }
 
-    fun uploadImage(request: UploadImageRequest) {
+    fun uploadImage(file: File) {
         viewModelScope.launch {
             try {
-                val response = repository.uploadImage(request)
-                _uiState.emit(UiState.Success(response.messages?.first() ?: ""))
+                val response = repository.uploadImage(file)
+                _uiState.emit(UiState.Success(response.messages?.first() ?: "", response.data?.imageUrl))
             }
             catch (ex: Exception) {
                 Log.e("HomeViewModel", "updateUser: ", ex)

@@ -10,23 +10,30 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -35,12 +42,16 @@ import com.example.phonebookapplication.data.model.SaveUserRequest
 import com.example.phonebookapplication.ui.theme.Gray200
 import com.example.phonebookapplication.ui.theme.Gray950
 import com.example.phonebookapplication.ui.theme.TextBlue
+import com.example.phonebookapplication.util.capitalizeFirstChar
+import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateContactBottomSheet(
     onDismiss: () -> Unit,
-    onSave: (SaveUserRequest) -> Unit
+    onImageSelected: (File) -> Unit,
+    onSave: (SaveUserRequest) -> Unit,
+    initialProfileImageUrl: String? = null
 ) {
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
@@ -48,9 +59,13 @@ fun CreateContactBottomSheet(
 
     var firstName by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
-    var phoneNumber by remember { mutableStateOf("") }
-    var profileImageUrl by remember { mutableStateOf<String?>(null) }
+    var phoneNumber by remember { mutableStateOf("+") }
+    var profileImageUrl by remember { mutableStateOf(initialProfileImageUrl) }
     var showUploadImageSheet by remember { mutableStateOf(false) }
+
+    LaunchedEffect(initialProfileImageUrl) {
+        profileImageUrl = initialProfileImageUrl
+    }
 
     val isDoneButtonEnabled = firstName.isNotBlank() && lastName.isNotBlank() && phoneNumber.isNotBlank()
 
@@ -92,8 +107,8 @@ fun CreateContactBottomSheet(
                         .clickable(enabled = (isDoneButtonEnabled)) {
                             onSave(
                                 SaveUserRequest(
-                                    firstName = firstName,
-                                    lastName = lastName,
+                                    firstName = firstName.capitalizeFirstChar(),
+                                    lastName = lastName.capitalizeFirstChar(),
                                     phoneNumber = phoneNumber,
                                     profileImageUrl = profileImageUrl
                                 )
@@ -109,7 +124,8 @@ fun CreateContactBottomSheet(
                         .data(profileImageUrl)
                         .build(),
                     contentDescription = "User Profile Image",
-                    modifier = Modifier.size(96.dp)
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.size(96.dp).clip(CircleShape)
                 )
             }
             else {
@@ -146,8 +162,16 @@ fun CreateContactBottomSheet(
             Spacer(Modifier.height(12.dp))
             OutlinedTextField(
                 value = phoneNumber,
-                onValueChange = {phoneNumber = it},
+                onValueChange = { input ->
+                    val digitsOnly = input.removePrefix("+").filter { it.isDigit() }
+                    val limitedDigits = digitsOnly.take(10)
+                    phoneNumber = "+$limitedDigits"
+                },
                 label = { Text(stringResource(R.string.phone_number)) },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Phone
+                ),
+                shape = RoundedCornerShape(8.dp),
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -159,8 +183,8 @@ fun CreateContactBottomSheet(
         PhotoPickerBottomSheet(
             onDismiss = { showUploadImageSheet = false },
             onTakePhoto = {},
-            onChooseGallery = { uriString ->
-                profileImageUrl = uriString
+            onChooseGallery = { file ->
+                onImageSelected(file)
             }
         )
     }

@@ -48,7 +48,6 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.phonebookapplication.R
 import com.example.phonebookapplication.data.model.UpdateUserRequest
-import com.example.phonebookapplication.data.model.UploadImageRequest
 import com.example.phonebookapplication.data.model.User
 import com.example.phonebookapplication.ui.theme.Blue50
 import com.example.phonebookapplication.ui.theme.Gray100
@@ -56,7 +55,7 @@ import com.example.phonebookapplication.ui.theme.Gray50
 import com.example.phonebookapplication.ui.theme.Gray500
 import com.example.phonebookapplication.ui.theme.Gray950
 import com.example.phonebookapplication.ui.theme.TextBlue
-import com.example.phonebookapplication.util.Constants
+import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -64,7 +63,7 @@ fun ContactInfoBottomSheet(
     user: User,
     onDismiss: () -> Unit,
     onUpdate: (UpdateUserRequest) -> Unit,
-    onUploadImage: (UploadImageRequest) -> Unit,
+    onUploadImage: (File) -> Unit,
     onDelete: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(
@@ -74,7 +73,6 @@ fun ContactInfoBottomSheet(
     var firstName by remember { mutableStateOf(user.firstName) }
     var lastName by remember { mutableStateOf(user.lastName) }
     var phoneNumber by remember { mutableStateOf(user.phoneNumber) }
-    var profileImageUrl by remember { mutableStateOf(user.profileImageUrl) }
     var isContactSaved by remember { mutableStateOf(user.savedToPhone) }
     var expanded by remember { mutableStateOf(false) }
     var isEditMode by remember { mutableStateOf(false) }
@@ -123,7 +121,7 @@ fun ContactInfoBottomSheet(
                                         firstName = firstName ?: "",
                                         lastName = lastName ?: "",
                                         phoneNumber = phoneNumber ?: "",
-                                        profileImageUrl = profileImageUrl ?: ""
+                                        profileImageUrl = user.profileImageUrl ?: ""
                                     )
                                 )
                                 onDismiss()
@@ -189,10 +187,10 @@ fun ContactInfoBottomSheet(
             }
             Spacer(Modifier.height(49.dp))
 
-            if (!profileImageUrl.isNullOrEmpty()) {
+            if (!user.profileImageUrl.isNullOrEmpty()) {
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
-                        .data(profileImageUrl)
+                        .data(user.profileImageUrl)
                         .build(),
                     contentDescription = "User Profile Image",
                     contentScale = ContentScale.Crop,
@@ -223,7 +221,7 @@ fun ContactInfoBottomSheet(
                 "Change Photo",
                 color = TextBlue,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.clickable {showUploadImageSheet = true}
+                modifier = Modifier.clickable {if(isEditMode) showUploadImageSheet = true}
             )
 
             Spacer(Modifier.height(32.dp))
@@ -307,13 +305,8 @@ fun ContactInfoBottomSheet(
         PhotoPickerBottomSheet(
             onDismiss = { showUploadImageSheet = false },
             onTakePhoto = {},
-            onChooseGallery = { uriString ->
-                profileImageUrl = uriString
-                onUploadImage(
-                    UploadImageRequest(
-                        image = uriString
-                    )
-                )
+            onChooseGallery = { file ->
+                onUploadImage(file)
             }
         )
     }

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,7 +26,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.phonebookapplication.R
@@ -42,14 +42,57 @@ fun ContactArea(
     searchQuery: String,
     modifier: Modifier = Modifier,
     onUserClick: (User) -> Unit = {},
-    onCreateClick: () -> Unit = {}
+    onCreateClick: () -> Unit = {},
+    isSearching: Boolean = false,
+    searchHistory: MutableList<String>,
+    onDeleteSearchItem: (String) -> Unit = {},
+    onClearAllSearch: () -> Unit = {}
 ) {
-
     val filteredUsers = users.filter {
         it.firstName?.startsWith(searchQuery, ignoreCase = true) == true
     }
 
-    if (users.isEmpty()) {
+    if(isSearching && searchHistory.isNotEmpty()) {
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+        ) {
+            item{
+                Row(modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("SEARCH HISTORY", fontSize = 14.sp, color = Gray300)
+                    Spacer(modifier = Modifier.weight(1f))
+                    Text("Clear All", fontSize = 12.sp, color = TextBlue, modifier = Modifier.clickable { onClearAllSearch() })
+                }
+                Spacer(modifier = Modifier.height(12.dp))
+            }
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White)
+                ) {
+                    searchHistory.forEachIndexed { index, historyItem ->
+                        SearchItem(
+                            historyItem,
+                            onDeleteClick = {
+                                onDeleteSearchItem(it)
+                            }
+                        )
+                        if (index != searchHistory.lastIndex) {
+                            HorizontalDivider(
+                                color = Gray50,
+                                thickness = 1.dp,
+                                modifier = Modifier.padding(horizontal = 12.dp)
+                            )
+                        }
+                    }
+                }
+
+            }
+        }
+    }
+    else if (users.isEmpty()) {
         Box(
             modifier = modifier.fillMaxSize(),
             contentAlignment = Alignment.Center,
@@ -149,13 +192,4 @@ fun ContactArea(
             }
         }
     }
-}
-
-@Preview
-@Composable
-fun ContactAreaPreview() {
-    ContactArea(
-        users = emptyList(),
-        searchQuery = "a"
-    )
 }

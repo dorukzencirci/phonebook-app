@@ -1,6 +1,5 @@
 package com.example.phonebookapplication.ui.screens.home
 
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -24,29 +23,40 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.phonebookapplication.R
 import com.example.phonebookapplication.ui.theme.AppBackgroundColor
 import com.example.phonebookapplication.ui.theme.Gray950
 import com.example.phonebookapplication.ui.theme.TextBlue
+import com.example.phonebookapplication.util.Constants
+import com.example.phonebookapplication.util.copyUriToFile
+import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PhotoPickerBottomSheet(
     onDismiss: () -> Unit,
     onTakePhoto: () -> Unit,
-    onChooseGallery: (String) -> Unit
+    onChooseGallery: (File) -> Unit
 ) {
+    val context = LocalContext.current
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val pickMedia = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         if (uri != null) {
-            Log.d("PhotoPicker", "Selected URI: $uri")
-            onChooseGallery(uri.toString())
-            onDismiss()
-        } else {
-            Log.d("PhotoPicker", "No media selected")
+            val mimeType = context.contentResolver.getType(uri)
+            val allowedExtensions = Constants.ACCEPTED_IMAGE_TYPES
+            if (mimeType != null && allowedExtensions.contains(mimeType.lowercase())) {
+                val extension = when (mimeType.lowercase()) {
+                    "image/png" -> "png"
+                    "image/jpeg" -> "jpg"
+                    else -> "jpg"
+                }
+                val file = context.copyUriToFile(uri,extension)
+                onChooseGallery(file)
+                onDismiss()
+            }
         }
     }
     ModalBottomSheet(
@@ -117,14 +127,4 @@ fun PhotoPickerBottomSheet(
             )
         }
     }
-}
-
-@Preview
-@Composable
-fun PhotoPickerBottomSheetPreview() {
-    PhotoPickerBottomSheet(
-        onDismiss = {},
-        onTakePhoto = {},
-        onChooseGallery = {}
-    )
 }

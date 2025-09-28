@@ -1,5 +1,6 @@
 package com.example.phonebookapplication.ui.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -15,9 +16,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.phonebookapplication.R
 import com.example.phonebookapplication.ui.theme.Gray300
@@ -25,9 +26,12 @@ import com.example.phonebookapplication.ui.theme.Gray300
 @Composable
 fun AppSearchBar(
     query: String,
-    onQueryChange: (String) -> Unit
+    onQueryChange: (String) -> Unit,
+    onFocusChanged: (Boolean) -> Unit,
+    onSearchClick: (String) -> Unit = {}
 ) {
     var isFocused by remember { mutableStateOf(false) }
+    val focusManager = LocalFocusManager.current
     TextField(
         value = query,
         onValueChange = { onQueryChange(it) },
@@ -36,9 +40,14 @@ fun AppSearchBar(
             Icon(
                 painter = painterResource(id = R.drawable.search_icon),
                 contentDescription = "Search Icon",
-                tint = Gray300
+                tint = Gray300,
+                modifier = Modifier.clickable {
+                    focusManager.clearFocus()
+                    onSearchClick(query)
+                }
             )
         },
+        singleLine = true,
         shape = RoundedCornerShape(8.dp),
         colors = TextFieldDefaults.colors(
             unfocusedContainerColor = Color.White,
@@ -50,12 +59,7 @@ fun AppSearchBar(
             .padding(horizontal = 16.dp)
             .onFocusChanged { focusState ->
                 isFocused = focusState.isFocused
+                onFocusChanged(focusState.isFocused)
             }
     )
-}
-
-@Preview
-@Composable
-fun AppSearchBarPreview() {
-    AppSearchBar("",{})
 }
