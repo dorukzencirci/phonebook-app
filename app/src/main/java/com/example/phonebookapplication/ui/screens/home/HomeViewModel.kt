@@ -57,6 +57,7 @@ class HomeViewModel(val repository: UserRepository): ViewModel() {
 
     fun saveUser(request: SaveUserRequest) {
         viewModelScope.launch {
+            _uiState.emit(UiState.Loading)
             try {
                 val response = repository.saveUser(request)
                 fetchAllUsers()
@@ -71,6 +72,7 @@ class HomeViewModel(val repository: UserRepository): ViewModel() {
 
     fun deleteUser(id: String) {
         viewModelScope.launch {
+            _uiState.emit(UiState.Loading)
             try {
                 val response = repository.deleteUser(id)
                 fetchAllUsers()
@@ -86,6 +88,7 @@ class HomeViewModel(val repository: UserRepository): ViewModel() {
 
     fun updateUser(request: UpdateUserRequest, id: String) {
         viewModelScope.launch {
+            _uiState.emit(UiState.Loading)
             try {
                 val response = repository.updateUser(id, request)
                 fetchAllUsers()
@@ -101,6 +104,7 @@ class HomeViewModel(val repository: UserRepository): ViewModel() {
 
     fun uploadImage(file: File) {
         viewModelScope.launch {
+            _uiState.emit(UiState.Loading)
             try {
                 val response = repository.uploadImage(file)
                 _uiState.emit(UiState.Success(response.messages?.first() ?: "", response.data?.imageUrl))

@@ -11,7 +11,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.phonebookapplication.R
 
 @Composable
 fun CustomInputField() {
@@ -22,10 +24,10 @@ fun CustomInputField() {
         value = textValue,
         onValueChange = { textValue = it },
         label = if (!isFocused) {
-            { Text("First Name") }
+            { Text(stringResource(R.string.first_name)) }
         } else null,
         placeholder = if (!isFocused) {
-            { Text("First Name") }
+            { Text(stringResource(R.string.first_name)) }
         } else null,
         colors = OutlinedTextFieldDefaults.colors(),
         modifier = Modifier

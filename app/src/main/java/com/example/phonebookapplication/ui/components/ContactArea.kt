@@ -62,9 +62,9 @@ fun ContactArea(
                 Row(modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("SEARCH HISTORY", fontSize = 14.sp, color = Gray300)
+                    Text(stringResource(R.string.search_history), fontSize = 14.sp, color = Gray300)
                     Spacer(modifier = Modifier.weight(1f))
-                    Text("Clear All", fontSize = 12.sp, color = TextBlue, modifier = Modifier.clickable { onClearAllSearch() })
+                    Text(stringResource(R.string.clear_all), fontSize = 12.sp, color = TextBlue, modifier = Modifier.clickable { onClearAllSearch() })
                 }
                 Spacer(modifier = Modifier.height(12.dp))
             }

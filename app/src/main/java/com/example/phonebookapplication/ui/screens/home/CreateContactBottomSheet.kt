@@ -149,12 +149,14 @@ fun CreateContactBottomSheet(
             OutlinedTextField(
                 value = firstName,
                 onValueChange = {firstName = it},
+                singleLine = true,
                 label = { Text(stringResource(R.string.first_name)) },
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(Modifier.height(12.dp))
             OutlinedTextField(
                 value = lastName,
+                singleLine = true,
                 onValueChange = {lastName = it},
                 label = { Text(stringResource(R.string.surname)) },
                 modifier = Modifier.fillMaxWidth()
@@ -162,6 +164,7 @@ fun CreateContactBottomSheet(
             Spacer(Modifier.height(12.dp))
             OutlinedTextField(
                 value = phoneNumber,
+                singleLine = true,
                 onValueChange = { input ->
                     val digitsOnly = input.removePrefix("+").filter { it.isDigit() }
                     val limitedDigits = digitsOnly.take(10)

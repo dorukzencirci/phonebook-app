@@ -237,7 +237,7 @@ fun ContactInfoBottomSheet(
 
             Text(
                 text = stringResource(R.string.change_photo),
-                color = TextBlue,
+                color = if(isEditMode) TextBlue else TextBlue.copy(alpha = 0.5f),
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.clickable {if (isEditMode) showUploadImageSheet = true }
             )
