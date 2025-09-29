@@ -27,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,6 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
@@ -55,6 +57,7 @@ import com.example.phonebookapplication.ui.theme.Gray50
 import com.example.phonebookapplication.ui.theme.Gray500
 import com.example.phonebookapplication.ui.theme.Gray950
 import com.example.phonebookapplication.ui.theme.TextBlue
+import com.example.phonebookapplication.util.getDominantColorFromUrl
 import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -66,6 +69,16 @@ fun ContactInfoBottomSheet(
     onDelete: () -> Unit,
     onUploadImage: (File) -> Unit,
 ) {
+
+    var dominantColor by remember { mutableStateOf(Color.Gray) }
+    val context = LocalContext.current
+    LaunchedEffect(user.profileImageUrl) {
+        user.profileImageUrl?.let { url ->
+            val color = getDominantColorFromUrl(url, context)
+            dominantColor = color
+        }
+    }
+
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
     )
@@ -186,16 +199,23 @@ fun ContactInfoBottomSheet(
             Spacer(Modifier.height(49.dp))
 
             if (!user.profileImageUrl.isNullOrEmpty()) {
-                AsyncImage(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(user.profileImageUrl)
-                        .build(),
-                    contentDescription = "User Profile Image",
-                    contentScale = ContentScale.Crop,
+                Box(
                     modifier = Modifier
                         .size(96.dp)
+                        .shadow(16.dp, CircleShape, ambientColor = dominantColor, spotColor = dominantColor)
                         .clip(CircleShape)
-                )
+                ) {
+                    AsyncImage(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(user.profileImageUrl)
+                            .build(),
+                        contentDescription = "User Profile Image",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .size(96.dp)
+                            .clip(CircleShape)
+                    )
+                }
             } else {
                 Box(
                     contentAlignment = Alignment.Center,

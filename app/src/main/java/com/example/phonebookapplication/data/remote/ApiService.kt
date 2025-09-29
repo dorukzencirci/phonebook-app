@@ -22,7 +22,7 @@ interface ApiService {
 
     @GET("User/{id}")
     suspend fun getUserById(
-        @Path("id") userId: Int
+        @Path("id") userId: String
     ): BaseResponse<User>
 
     @POST("User")

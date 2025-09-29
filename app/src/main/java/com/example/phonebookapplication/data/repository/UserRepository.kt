@@ -17,7 +17,7 @@ class UserRepository(private val api: ApiService) {
         return api.getAllUsers()
     }
 
-    suspend fun getUserById(id: Int): BaseResponse<User> {
+    suspend fun getUserById(id: String): BaseResponse<User> {
         return api.getUserById(id)
     }
 

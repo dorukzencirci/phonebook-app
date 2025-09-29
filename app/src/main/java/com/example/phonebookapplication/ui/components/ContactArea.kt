@@ -42,6 +42,8 @@ fun ContactArea(
     searchQuery: String,
     modifier: Modifier = Modifier,
     onUserClick: (User) -> Unit = {},
+    onEditClick: (User) -> Unit = {},
+    onDeleteClick: (User) -> Unit = {},
     onCreateClick: () -> Unit = {},
     isSearching: Boolean = false,
     searchHistory: MutableList<String>,
@@ -176,7 +178,9 @@ fun ContactArea(
                             usersForLetter.forEachIndexed { index, user ->
                                 UserItem(
                                     user = user,
-                                    onClick = onUserClick
+                                    onClick = onUserClick,
+                                    onDeleteClick = onDeleteClick,
+                                    onEditClick = onEditClick
                                 )
                                 if (index != usersForLetter.lastIndex) {
                                     HorizontalDivider(

@@ -22,6 +22,8 @@ class HomeViewModel(val repository: UserRepository): ViewModel() {
     val uiState = _uiState.asSharedFlow()
     private val _users = MutableStateFlow<List<User>>(emptyList())
     val users: StateFlow<List<User>> = _users
+    private val _user = MutableStateFlow(User())
+    val user: StateFlow<User> = _user
 
     fun fetchAllUsers() {
         viewModelScope.launch {
@@ -36,6 +38,20 @@ class HomeViewModel(val repository: UserRepository): ViewModel() {
                 _uiState.emit(UiState.Error(ex.message))
             }
 
+        }
+    }
+
+    fun getUserById(id: String) {
+        viewModelScope.launch {
+            try {
+                val response = repository.getUserById(id)
+                _user.value = response.data ?: User()
+                _uiState.emit(UiState.Success(response.messages?.first() ?: ""))
+            }
+            catch (ex: Exception) {
+                Log.e("HomeViewModel", "getUserById: ", ex)
+                _uiState.emit(UiState.Error(ex.message))
+            }
         }
     }
 

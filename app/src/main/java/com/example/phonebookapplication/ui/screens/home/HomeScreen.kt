@@ -53,6 +53,7 @@ fun HomeScreen(viewModel: HomeViewModel) {
     val snackbarHostState = remember { SnackbarHostState() }
     var searchQuery by remember { mutableStateOf("") }
     val users by viewModel.users.collectAsState(emptyList())
+    val userById by viewModel.user.collectAsState()
     var showAddContactSheet by remember { mutableStateOf(false) }
     var showContactInfoSheet by remember { mutableStateOf(false) }
     var showSuccessScreen by remember { mutableStateOf(false) }
@@ -160,8 +161,17 @@ fun HomeScreen(viewModel: HomeViewModel) {
                     searchQuery = searchQuery,
                     onCreateClick = { showAddContactSheet = true },
                     onUserClick = {user ->
+                        viewModel.getUserById(user.id ?: "")
                         selectedUser = user
                         showContactInfoSheet = true
+                    },
+                    onEditClick = {
+                        selectedUser = it
+                        showContactInfoSheet = true
+                    },
+                    onDeleteClick = {
+                        selectedUser = it
+                        showDeleteContactSheet = true
                     },
                     isSearching = isSearching,
                     searchHistory = searchHistory,
