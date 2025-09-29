@@ -182,7 +182,9 @@ fun CreateContactBottomSheet(
     if(showUploadImageSheet) {
         PhotoPickerBottomSheet(
             onDismiss = { showUploadImageSheet = false },
-            onTakePhoto = {},
+            onTakePhoto = { file ->
+                onImageSelected(file)
+            },
             onChooseGallery = { file ->
                 onImageSelected(file)
             }

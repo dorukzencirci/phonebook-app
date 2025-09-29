@@ -21,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -38,7 +39,7 @@ import java.io.File
 @Composable
 fun PhotoPickerBottomSheet(
     onDismiss: () -> Unit,
-    onTakePhoto: () -> Unit,
+    onTakePhoto: (File) -> Unit,
     onChooseGallery: (File) -> Unit
 ) {
     val context = LocalContext.current
@@ -59,6 +60,21 @@ fun PhotoPickerBottomSheet(
             }
         }
     }
+    val photoFile = remember { File(context.cacheDir, "temp_photo.jpg") }
+    val photoUri = androidx.core.content.FileProvider.getUriForFile(
+        context,
+        "${context.packageName}.provider",
+        photoFile
+    )
+
+    val takePhotoLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success) {
+            onTakePhoto(photoFile)
+            onDismiss()
+        }
+    }
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
@@ -72,7 +88,9 @@ fun PhotoPickerBottomSheet(
                 .padding(start = 33.dp, end = 32.dp, top = 29.dp, bottom = 8.dp)
         ) {
             TextButton(
-                onClick = {},
+                onClick = {
+                    takePhotoLauncher.launch(photoUri)
+                },
                 modifier = Modifier.fillMaxWidth()
                     .border(
                         width = 1.dp,

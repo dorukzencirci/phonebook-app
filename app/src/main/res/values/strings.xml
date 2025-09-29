@@ -17,4 +17,5 @@
     <string name="user_not_found_msg">The user you are looking for could not be found.</string>
     <string name="name_match_header_text">TOP NAME MATCHES</string>
     <string name="save_to_my_phone_text">Save to My Phone Contact</string>
+    <string name="contact_is_saved_text">This contact is already saved to your phone.</string>
 </resources>

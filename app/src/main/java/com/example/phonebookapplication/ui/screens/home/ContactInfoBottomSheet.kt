@@ -236,10 +236,10 @@ fun ContactInfoBottomSheet(
             Spacer(Modifier.height(8.dp))
 
             Text(
-                "Change Photo",
+                text = stringResource(R.string.change_photo),
                 color = TextBlue,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.clickable { if (isEditMode) showUploadImageSheet = true }
+                modifier = Modifier.clickable {if (isEditMode) showUploadImageSheet = true }
             )
 
             Spacer(Modifier.height(32.dp))
@@ -247,7 +247,7 @@ fun ContactInfoBottomSheet(
             OutlinedTextField(
                 value = firstName ?: "",
                 onValueChange = { firstName = it },
-                label = { Text("First Name") },
+                label = { Text(stringResource(R.string.first_name)) },
                 modifier = Modifier.fillMaxWidth(),
                 readOnly = !isEditMode
             )
@@ -255,7 +255,7 @@ fun ContactInfoBottomSheet(
             OutlinedTextField(
                 value = lastName ?: "",
                 onValueChange = { lastName = it },
-                label = { Text("Last Name") },
+                label = { Text(stringResource(R.string.surname)) },
                 modifier = Modifier.fillMaxWidth(),
                 readOnly = !isEditMode
             )
@@ -263,7 +263,7 @@ fun ContactInfoBottomSheet(
             OutlinedTextField(
                 value = phoneNumber ?: "",
                 onValueChange = { phoneNumber = it },
-                label = { Text("Phone Number") },
+                label = { Text(stringResource(R.string.phone_number)) },
                 modifier = Modifier.fillMaxWidth(),
                 readOnly = !isEditMode
             )
@@ -314,7 +314,7 @@ fun ContactInfoBottomSheet(
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            "This contact is already saved to your phone.",
+                            stringResource(R.string.contact_is_saved_text),
                             color = Gray500,
                             fontSize = 12.sp
                         )
@@ -326,7 +326,9 @@ fun ContactInfoBottomSheet(
     if(showUploadImageSheet) {
         PhotoPickerBottomSheet(
             onDismiss = { showUploadImageSheet = false },
-            onTakePhoto = {},
+            onTakePhoto = { file ->
+                onUploadImage(file)
+            },
             onChooseGallery = { file ->
                 onUploadImage(file)
             }
