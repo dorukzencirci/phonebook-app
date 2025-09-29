@@ -63,8 +63,8 @@ fun ContactInfoBottomSheet(
     user: User,
     onDismiss: () -> Unit,
     onUpdate: (UpdateUserRequest) -> Unit,
+    onDelete: () -> Unit,
     onUploadImage: (File) -> Unit,
-    onDelete: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
@@ -77,7 +77,6 @@ fun ContactInfoBottomSheet(
     var expanded by remember { mutableStateOf(false) }
     var isEditMode by remember { mutableStateOf(false) }
     var showUploadImageSheet by remember { mutableStateOf(false) }
-    var showDeleteContactSheet by remember { mutableStateOf(false) }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -101,7 +100,7 @@ fun ContactInfoBottomSheet(
                         text = "Cancel",
                         color = TextBlue,
                         modifier = Modifier.align(Alignment.CenterStart)
-                            .clickable { onDismiss() }
+                            .clickable { isEditMode = false }
                     )
 
                     Text(
@@ -128,8 +127,7 @@ fun ContactInfoBottomSheet(
                             }
                     )
                 }
-            }
-            else {
+            } else {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
@@ -160,7 +158,7 @@ fun ContactInfoBottomSheet(
                                     expanded = false
                                     isEditMode = true
                                 },
-                                modifier = Modifier.height(40.dp)
+                                modifier = Modifier.height(40.dp).width(165.dp)
                             )
                             HorizontalDivider(
                                 color = Gray50,
@@ -177,9 +175,9 @@ fun ContactInfoBottomSheet(
                                 },
                                 onClick = {
                                     expanded = false
-                                    showDeleteContactSheet = true
+                                    onDelete()
                                 },
-                                modifier = Modifier.height(40.dp)
+                                modifier = Modifier.height(40.dp).width(165.dp)
                             )
                         }
                     }
@@ -221,85 +219,89 @@ fun ContactInfoBottomSheet(
                 "Change Photo",
                 color = TextBlue,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.clickable {if(isEditMode) showUploadImageSheet = true}
+                modifier = Modifier.clickable { if (isEditMode) showUploadImageSheet = true }
             )
 
             Spacer(Modifier.height(32.dp))
 
             OutlinedTextField(
                 value = firstName ?: "",
-                onValueChange = {firstName = it},
+                onValueChange = { firstName = it },
                 label = { Text("First Name") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                readOnly = !isEditMode
             )
             Spacer(Modifier.height(12.dp))
             OutlinedTextField(
                 value = lastName ?: "",
-                onValueChange = {lastName = it},
+                onValueChange = { lastName = it },
                 label = { Text("Last Name") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                readOnly = !isEditMode
             )
             Spacer(Modifier.height(12.dp))
             OutlinedTextField(
                 value = phoneNumber ?: "",
-                onValueChange = {phoneNumber = it},
+                onValueChange = { phoneNumber = it },
                 label = { Text("Phone Number") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                readOnly = !isEditMode
             )
 
             Spacer(Modifier.height(48.dp))
 
-            TextButton(
-                onClick = {
-                    user.savedToPhone = true
-                    isContactSaved = true
-                },
-                enabled = !isContactSaved,
-                modifier = Modifier.fillMaxWidth()
-                    .border(
-                        width = 1.dp,
-                        color = if(isContactSaved) Gray100 else Gray950,
-                        shape = RoundedCornerShape(64.dp)
-                    )
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
+            if(!isEditMode) {
+                TextButton(
+                    onClick = {
+                        user.savedToPhone = true
+                        isContactSaved = true
+                    },
+                    enabled = !isContactSaved,
+                    modifier = Modifier.fillMaxWidth()
+                        .border(
+                            width = 1.dp,
+                            color = if (isContactSaved) Gray100 else Gray950,
+                            shape = RoundedCornerShape(64.dp)
+                        )
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.save_icon),
-                        contentDescription = null,
-                        colorFilter = if(isContactSaved) ColorFilter.tint(Gray100) else ColorFilter.tint(Gray950),
-                        modifier = Modifier
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(text = stringResource(R.string.save_to_my_phone_text), color = if(isContactSaved) Gray100 else Gray950)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.save_icon),
+                            contentDescription = null,
+                            colorFilter = if (isContactSaved) ColorFilter.tint(Gray100) else ColorFilter.tint(
+                                Gray950
+                            ),
+                            modifier = Modifier
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = stringResource(R.string.save_to_my_phone_text),
+                            color = if (isContactSaved) Gray100 else Gray950
+                        )
+                    }
                 }
-            }
-            if(isContactSaved) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 40.dp)
-                ) {
-                    Image(
-                        painter = painterResource(R.drawable.info_icon),
-                        contentDescription = "info icon"
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("This contact is already saved to your phone.", color = Gray500, fontSize = 12.sp)
+                if (isContactSaved) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 40.dp)
+                    ) {
+                        Image(
+                            painter = painterResource(R.drawable.info_icon),
+                            contentDescription = "info icon"
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            "This contact is already saved to your phone.",
+                            color = Gray500,
+                            fontSize = 12.sp
+                        )
+                    }
                 }
             }
         }
-    }
-
-    if(showDeleteContactSheet) {
-        DeleteContactBottomSheet(
-            onDismiss = {
-                showDeleteContactSheet = false
-            },
-            onDelete = onDelete
-        )
-
     }
     if(showUploadImageSheet) {
         PhotoPickerBottomSheet(

@@ -43,8 +43,8 @@ class HomeViewModel(val repository: UserRepository): ViewModel() {
         viewModelScope.launch {
             try {
                 val response = repository.saveUser(request)
-                _uiState.emit(UiState.Success(response.messages?.first() ?: "User is saved!"))
                 fetchAllUsers()
+                _uiState.emit(UiState.Success(response.messages?.first() ?: "User is saved!"))
             }
             catch (ex: Exception) {
                 Log.e("HomeViewModel", "saveUser: ", ex)
@@ -57,8 +57,8 @@ class HomeViewModel(val repository: UserRepository): ViewModel() {
         viewModelScope.launch {
             try {
                 val response = repository.deleteUser(id)
-                _uiState.emit(UiState.Success(response.messages?.first() ?: "User is Deleted!"))
                 fetchAllUsers()
+                _uiState.emit(UiState.Success(response.messages?.first() ?: "User is Deleted!"))
             }
             catch (ex: Exception) {
                 Log.e("HomeViewModel", "deleteUser: ", ex)
@@ -72,8 +72,8 @@ class HomeViewModel(val repository: UserRepository): ViewModel() {
         viewModelScope.launch {
             try {
                 val response = repository.updateUser(id, request)
-                _uiState.emit(UiState.Success(response.messages?.first() ?: "User is updated!"))
                 fetchAllUsers()
+                _uiState.emit(UiState.Success(response.messages?.first() ?: "User is updated!"))
             }
             catch (ex: Exception) {
                 Log.e("HomeViewModel", "updateUser: ", ex)

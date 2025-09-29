@@ -56,6 +56,7 @@ fun HomeScreen(viewModel: HomeViewModel) {
     var showAddContactSheet by remember { mutableStateOf(false) }
     var showContactInfoSheet by remember { mutableStateOf(false) }
     var showSuccessScreen by remember { mutableStateOf(false) }
+    var showDeleteContactSheet by remember { mutableStateOf(false) }
     var selectedUser by remember { mutableStateOf<User?>(null) }
     var uploadedImageUrl by remember { mutableStateOf<String?>(null) }
     var isSearching by remember { mutableStateOf(false) }
@@ -204,7 +205,9 @@ fun HomeScreen(viewModel: HomeViewModel) {
     if (showContactInfoSheet && selectedUser != null) {
         ContactInfoBottomSheet(
             user = selectedUser!!,
-            onDismiss = { showContactInfoSheet = false },
+            onDismiss = {
+                showContactInfoSheet = false
+            },
             onUpdate = { saveUserRequest ->
                 viewModel.updateUser(
                     saveUserRequest, selectedUser!!.id ?: ""
@@ -212,13 +215,27 @@ fun HomeScreen(viewModel: HomeViewModel) {
                 uploadedImageUrl = null
             },
             onDelete = {
-                viewModel.deleteUser(selectedUser!!.id ?: "")
                 showContactInfoSheet = false
+                showDeleteContactSheet = true
             },
             onUploadImage = { file ->
                 viewModel.uploadImage(file)
             }
         )
+    }
+
+    if(showDeleteContactSheet) {
+        DeleteContactBottomSheet(
+            onDismiss = {
+                showDeleteContactSheet = false
+            },
+            onDelete = {
+                viewModel.deleteUser(selectedUser!!.id ?: "")
+                showContactInfoSheet = false
+                showDeleteContactSheet = false
+            }
+        )
+
     }
 
     if(showSuccessScreen) {

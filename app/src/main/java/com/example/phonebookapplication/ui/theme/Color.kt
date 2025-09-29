@@ -21,6 +21,7 @@ val Gray100 = Color(231,231,231)
 val Gray400 = Color(136,136,136)
 val TextBlue = Color(0,117,255)
 val Blue50 = Color(237,250,255)
+val Blue500 = Color(30,167,255)
 
 val SuccessGreen = Color(18,183,106)
 val AppBackgroundColor = Color(246,246,246)
